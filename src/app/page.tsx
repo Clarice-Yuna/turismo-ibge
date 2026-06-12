@@ -20,7 +20,7 @@ import {
 } from "lucide-react"
 
 // ============ CHART COLORS ============
-const CHART_COLORS = ["#10b981", "#f59e0b", "#06b6d4", "#8b5cf6", "#ec4899", "#22c55e", "#ef4444", "#3b82f6"]
+const CHART_COLORS = ["#38bdf8", "#0ea5e9", "#06b6d4", "#8b5cf6", "#ec4899", "#22c55e", "#f59e0b", "#ef4444"]
 
 // ============ ICON MAP ============
 const iconMap: Record<string, React.ReactNode> = {
@@ -80,14 +80,14 @@ function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-neutral-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-950 dark:to-blue-950 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 mb-4">
-            <Building2 className="w-8 h-8 text-emerald-500" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-sky-500/10 mb-4">
+            <Building2 className="w-8 h-8 text-sky-500" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Hospedagem Dashboard</h1>
-          <p className="text-muted-foreground mt-1">Pesquisa de Serviços de Hospedagem - IBGE 2016</p>
+          <h1 className="text-2xl font-bold tracking-tight text-sky-600">Turismo - IBGE 2016</h1>
+          <p className="text-muted-foreground mt-1">Pesquisa de Serviços de Hospedagem</p>
         </div>
         <div className="bg-card rounded-2xl border shadow-sm p-6">
           <div className="flex gap-1 p-1 bg-muted rounded-xl mb-6">
@@ -110,7 +110,7 @@ function LoginScreen() {
                 <label className="text-sm font-medium mb-1.5 block">Nome</label>
                 <input
                   type="text" value={name} onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                   placeholder="Seu nome" required={!isLogin}
                 />
               </div>
@@ -119,7 +119,7 @@ function LoginScreen() {
               <label className="text-sm font-medium mb-1.5 block">Email</label>
               <input
                 type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                 placeholder="seu@email.com" required
               />
             </div>
@@ -127,14 +127,14 @@ function LoginScreen() {
               <label className="text-sm font-medium mb-1.5 block">Senha</label>
               <input
                 type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+                className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
                 placeholder="••••••" required
               />
             </div>
             {error && <p className="text-sm text-red-500">{error}</p>}
             <button
               type="submit" disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {isLogin ? "Entrar" : "Criar Conta"}
@@ -151,7 +151,7 @@ function LoginScreen() {
 
 // ============ DASHBOARD CHARTS ============
 function DashboardCharts({ data }: { data: any }) {
-  if (!data) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+  if (!data) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
 
   const estados = data.estabPorTipo.filter((d: any) => d.uf !== "Brasil")
   const brasil = data.estabPorTipo.find((d: any) => d.uf === "Brasil")
@@ -171,7 +171,7 @@ function DashboardCharts({ data }: { data: any }) {
 
   // Chart 1 - Tipos de estabelecimento no Brasil (pie)
   const tiposData = brasil ? [
-    { name: "Hotéis", value: brasil.hoteis, fill: "#10b981" },
+    { name: "Hotéis", value: brasil.hoteis, fill: "#38bdf8" },
     { name: "Pousadas", value: brasil.pousadas, fill: "#f59e0b" },
     { name: "Motéis", value: brasil.moteis, fill: "#06b6d4" },
     { name: "Apart-hotéis", value: brasil.apartHoteis, fill: "#8b5cf6" },
@@ -184,7 +184,7 @@ function DashboardCharts({ data }: { data: any }) {
   const catBrasil = data.estabPorCategoria.find((d: any) => d.uf === "Brasil")
   const catData = catBrasil ? [
     { name: "Luxo", value: catBrasil.luxo, fill: "#8b5cf6" },
-    { name: "Superior", value: catBrasil.superior, fill: "#10b981" },
+    { name: "Superior", value: catBrasil.superior, fill: "#38bdf8" },
     { name: "Turístico", value: catBrasil.turistico, fill: "#06b6d4" },
     { name: "Econômico", value: catBrasil.economico, fill: "#f59e0b" },
     { name: "Simples", value: catBrasil.simples, fill: "#ec4899" },
@@ -193,7 +193,7 @@ function DashboardCharts({ data }: { data: any }) {
   // Chart 3 - Localização (pie)
   const locBrasil = data.estabPorLocalizacao.find((d: any) => d.uf === "Brasil")
   const locData = locBrasil ? [
-    { name: "Urbana/Centro", value: locBrasil.urbanaCentro, fill: "#10b981" },
+    { name: "Urbana/Centro", value: locBrasil.urbanaCentro, fill: "#38bdf8" },
     { name: "Urbana/Fora", value: locBrasil.urbanaFora, fill: "#06b6d4" },
     { name: "Orla Marítima", value: locBrasil.orlaMaritima, fill: "#f59e0b" },
     { name: "Zona Rural", value: locBrasil.zonaRural, fill: "#22c55e" },
@@ -202,7 +202,7 @@ function DashboardCharts({ data }: { data: any }) {
   // Chart 4 - Características (pie)
   const caracBrasil = data.estabPorCaracteristica.find((d: any) => d.uf === "Brasil")
   const caracData = caracBrasil ? [
-    { name: "Independentes", value: caracBrasil.independentes, fill: "#10b981" },
+    { name: "Independentes", value: caracBrasil.independentes, fill: "#38bdf8" },
     { name: "Cadeia Nacional", value: caracBrasil.cadeiaNacional, fill: "#f59e0b" },
     { name: "Cadeia Internacional", value: caracBrasil.cadeiaInternacional, fill: "#8b5cf6" },
   ] : []
@@ -321,13 +321,13 @@ function DashboardCharts({ data }: { data: any }) {
     Pousadas: d.pousadas,
   }))
 
-  const tiposConfig: ChartConfig = { Hotéis: { label: "Hotéis", color: "#10b981" }, Pousadas: { label: "Pousadas", color: "#f59e0b" }, Motéis: { label: "Motéis", color: "#06b6d4" } }
-  const leitosConfig: ChartConfig = { Simples: { label: "Simples", color: "#10b981" }, Duplos: { label: "Duplos", color: "#8b5cf6" } }
-  const radarConfig: ChartConfig = { Luxo: { label: "Luxo", color: "#8b5cf6" }, Superior: { label: "Superior", color: "#10b981" }, Turístico: { label: "Turístico", color: "#06b6d4" }, Econômico: { label: "Econômico", color: "#f59e0b" } }
-  const locConfig: ChartConfig = { "Urbana/Centro": { label: "Urbana/Centro", color: "#10b981" }, "Urbana/Fora": { label: "Urbana/Fora", color: "#06b6d4" }, "Orla Marítima": { label: "Orla Marítima", color: "#f59e0b" }, "Zona Rural": { label: "Zona Rural", color: "#22c55e" } }
-  const uhConfig: ChartConfig = { "Total UH": { label: "Total UH", color: "#06b6d4" }, Adaptadas: { label: "Adaptadas", color: "#10b981" } }
-  const cadeiaConfig: ChartConfig = { Independentes: { label: "Independentes", color: "#10b981" }, "Cadeia Nacional": { label: "Cadeia Nacional", color: "#f59e0b" }, "Cadeia Internacional": { label: "Cadeia Internacional", color: "#8b5cf6" } }
-  const tamConfig: ChartConfig = { "Pequeno (até 19)": { label: "Pequeno", color: "#10b981" }, "Médio (20-49)": { label: "Médio", color: "#f59e0b" }, "Grande (50+)": { label: "Grande", color: "#8b5cf6" } }
+  const tiposConfig: ChartConfig = { Hotéis: { label: "Hotéis", color: "#38bdf8" }, Pousadas: { label: "Pousadas", color: "#f59e0b" }, Motéis: { label: "Motéis", color: "#06b6d4" } }
+  const leitosConfig: ChartConfig = { Simples: { label: "Simples", color: "#38bdf8" }, Duplos: { label: "Duplos", color: "#8b5cf6" } }
+  const radarConfig: ChartConfig = { Luxo: { label: "Luxo", color: "#8b5cf6" }, Superior: { label: "Superior", color: "#38bdf8" }, Turístico: { label: "Turístico", color: "#06b6d4" }, Econômico: { label: "Econômico", color: "#f59e0b" } }
+  const locConfig: ChartConfig = { "Urbana/Centro": { label: "Urbana/Centro", color: "#38bdf8" }, "Urbana/Fora": { label: "Urbana/Fora", color: "#06b6d4" }, "Orla Marítima": { label: "Orla Marítima", color: "#f59e0b" }, "Zona Rural": { label: "Zona Rural", color: "#22c55e" } }
+  const uhConfig: ChartConfig = { "Total UH": { label: "Total UH", color: "#06b6d4" }, Adaptadas: { label: "Adaptadas", color: "#38bdf8" } }
+  const cadeiaConfig: ChartConfig = { Independentes: { label: "Independentes", color: "#38bdf8" }, "Cadeia Nacional": { label: "Cadeia Nacional", color: "#f59e0b" }, "Cadeia Internacional": { label: "Cadeia Internacional", color: "#8b5cf6" } }
+  const tamConfig: ChartConfig = { "Pequeno (até 19)": { label: "Pequeno", color: "#38bdf8" }, "Médio (20-49)": { label: "Médio", color: "#f59e0b" }, "Grande (50+)": { label: "Grande", color: "#8b5cf6" } }
 
   const cardClass = "bg-card rounded-xl border shadow-sm p-4"
   const chartTitleClass = "text-sm font-semibold text-foreground mb-3"
@@ -337,10 +337,10 @@ function DashboardCharts({ data }: { data: any }) {
       {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Estabelecimentos", value: brasil?.total?.toLocaleString("pt-BR"), icon: <Building2 className="w-4 h-4" />, color: "text-emerald-500" },
-          { label: "Unidades Habitacionais", value: data.uhLeitosUF.find((d: any) => d.uf === "Brasil")?.uhTotal?.toLocaleString("pt-BR"), icon: <Bed className="w-4 h-4" />, color: "text-cyan-500" },
-          { label: "Leitos", value: data.uhLeitosUF.find((d: any) => d.uf === "Brasil")?.leitosTotal?.toLocaleString("pt-BR"), icon: <Activity className="w-4 h-4" />, color: "text-amber-500" },
-          { label: "Capitais", value: data.capitais.length.toString(), icon: <MapPin className="w-4 h-4" />, color: "text-purple-500" },
+          { label: "Estabelecimentos", value: brasil?.total?.toLocaleString("pt-BR"), icon: <Building2 className="w-4 h-4" />, color: "text-sky-500" },
+          { label: "Unidades Habitacionais", value: data.uhLeitosUF.find((d: any) => d.uf === "Brasil")?.uhTotal?.toLocaleString("pt-BR"), icon: <Bed className="w-4 h-4" />, color: "text-blue-500" },
+          { label: "Leitos", value: data.uhLeitosUF.find((d: any) => d.uf === "Brasil")?.leitosTotal?.toLocaleString("pt-BR"), icon: <Activity className="w-4 h-4" />, color: "text-sky-600" },
+          { label: "Capitais", value: data.capitais.length.toString(), icon: <MapPin className="w-4 h-4" />, color: "text-blue-400" },
         ].map((stat, i) => (
           <div key={i} className={`${cardClass} flex items-center gap-3`}>
             <div className={`${stat.color} p-2 rounded-lg bg-opacity-10`} style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 10%, transparent)` }}>
@@ -480,7 +480,7 @@ function DashboardCharts({ data }: { data: any }) {
 
         <div className={cardClass}>
           <h3 className={chartTitleClass}>Top 10 Capitais por Leitos</h3>
-          <ChartContainer config={{ Leitos: { label: "Leitos", color: "#10b981" } }} className="h-[280px] w-full">
+          <ChartContainer config={{ Leitos: { label: "Leitos", color: "#38bdf8" } }} className="h-[280px] w-full">
             <BarChart data={capData} layout="vertical" margin={{ left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} />
               <XAxis type="number" />
@@ -502,7 +502,7 @@ function DashboardCharts({ data }: { data: any }) {
               <PolarAngleAxis dataKey="region" tick={{ fontSize: 11 }} />
               <PolarRadiusAxis tick={{ fontSize: 9 }} />
               <Radar name="Luxo" dataKey="Luxo" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
-              <Radar name="Superior" dataKey="Superior" stroke="#10b981" fill="#10b981" fillOpacity={0.15} />
+              <Radar name="Superior" dataKey="Superior" stroke="#38bdf8" fill="#38bdf8" fillOpacity={0.15} />
               <Radar name="Turístico" dataKey="Turístico" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.15} />
               <Radar name="Econômico" dataKey="Econômico" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} />
               <ChartTooltip content={<ChartTooltipContent />} />
@@ -574,7 +574,7 @@ function DashboardCharts({ data }: { data: any }) {
               <YAxis dataKey="leitos" name="Leitos" tick={{ fontSize: 10 }} />
               <ZAxis range={[40, 200]} />
               <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={(v: number, n: string) => [v.toLocaleString("pt-BR"), n]} />
-              <Scatter data={scatterData} fill="#10b981" />
+              <Scatter data={scatterData} fill="#38bdf8" />
             </ScatterChart>
           </ChartContainer>
         </div>
@@ -600,7 +600,7 @@ function DashboardCharts({ data }: { data: any }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={cardClass}>
           <h3 className={chartTitleClass}>Hotéis por Estado</h3>
-          <ChartContainer config={{ Hotéis: { label: "Hotéis", color: "#10b981" } }} className="h-[280px] w-full">
+          <ChartContainer config={{ Hotéis: { label: "Hotéis", color: "#38bdf8" } }} className="h-[280px] w-full">
             <BarChart data={hoteisData} margin={{ left: 10 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="uf" tick={{ fontSize: 10 }} angle={-30} textAnchor="end" height={60} />
@@ -646,7 +646,7 @@ function CuriositiesSection() {
   const categories = ["Todas", ...Array.from(new Set(curiosities.map((c: any) => c.category)))]
   const filtered = filter === "Todas" ? curiosities : curiosities.filter((c: any) => c.category === filter)
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
 
   return (
     <div className="space-y-6">
@@ -654,7 +654,7 @@ function CuriositiesSection() {
         {categories.map((cat) => (
           <button
             key={cat} onClick={() => setFilter(cat)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filter === cat ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filter === cat ? "bg-sky-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
           >
             {cat}
           </button>
@@ -664,7 +664,7 @@ function CuriositiesSection() {
         {filtered.map((c: any) => (
           <div key={c.id} className="bg-card rounded-xl border shadow-sm p-5 hover:shadow-md transition-shadow">
             <div className="flex items-start gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500 shrink-0">
+              <div className="p-2 rounded-lg bg-sky-500/10 text-sky-500 shrink-0">
                 {iconMap[c.icon] || <Lightbulb className="w-5 h-5" />}
               </div>
               <div>
@@ -692,7 +692,7 @@ function QuizSection({ onPlay }: { onPlay: (categoryId: string) => void }) {
     }).catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -708,7 +708,7 @@ function QuizSection({ onPlay }: { onPlay: (categoryId: string) => void }) {
           </div>
           <h3 className="font-semibold text-sm mb-1">{cat.name}</h3>
           <p className="text-xs text-muted-foreground mb-4">{cat.description}</p>
-          <div className="flex items-center text-emerald-500 text-xs font-medium group-hover:gap-2 transition-all gap-1">
+          <div className="flex items-center text-sky-500 text-xs font-medium group-hover:gap-2 transition-all gap-1">
             Iniciar Quiz <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </div>
@@ -752,7 +752,7 @@ function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: 
     }
   }
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
 
   if (results) {
     const { attempt, results: answerResults } = results
@@ -760,25 +760,25 @@ function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: 
     return (
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="bg-card rounded-xl border shadow-sm p-8 text-center">
-          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${pct >= 70 ? "bg-emerald-500/10 text-emerald-500" : pct >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
+          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${pct >= 70 ? "bg-sky-500/10 text-sky-500" : pct >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
             {pct >= 70 ? <Trophy className="w-10 h-10" /> : pct >= 40 ? <Target className="w-10 h-10" /> : <XCircle className="w-10 h-10" />}
           </div>
           <h2 className="text-2xl font-bold mb-2">{pct >= 70 ? "Excelente!" : pct >= 40 ? "Bom trabalho!" : "Continue tentando!"}</h2>
           <p className="text-muted-foreground mb-4">Você acertou {attempt.score} de {attempt.totalQuestions} perguntas</p>
-          <div className="text-4xl font-bold text-emerald-500 mb-6">{pct}%</div>
-          <button onClick={onBack} className="px-6 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm transition-colors">
+          <div className="text-4xl font-bold text-sky-500 mb-6">{pct}%</div>
+          <button onClick={onBack} className="px-6 py-2.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-medium text-sm transition-colors">
             Voltar ao Quiz
           </button>
         </div>
 
         <div className="space-y-3">
           {answerResults.map((r: any, i: number) => (
-            <div key={i} className={`bg-card rounded-xl border shadow-sm p-4 ${r.correct ? "border-emerald-500/30" : "border-red-500/30"}`}>
+            <div key={i} className={`bg-card rounded-xl border shadow-sm p-4 ${r.correct ? "border-sky-500/30" : "border-red-500/30"}`}>
               <div className="flex items-start gap-3">
-                {r.correct ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />}
+                {r.correct ? <CheckCircle2 className="w-5 h-5 text-sky-500 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />}
                 <div>
                   <p className="text-sm font-medium">Pergunta {i + 1}</p>
-                  {!r.correct && <p className="text-xs text-muted-foreground mt-1">Resposta correta: <span className="font-medium text-emerald-500">{r.correctAnswer}</span></p>}
+                  {!r.correct && <p className="text-xs text-muted-foreground mt-1">Resposta correta: <span className="font-medium text-sky-500">{r.correctAnswer}</span></p>}
                   {r.explanation && <p className="text-xs text-muted-foreground mt-1">{r.explanation}</p>}
                 </div>
               </div>
@@ -807,21 +807,21 @@ function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: 
           <span className="text-xs text-muted-foreground">Pergunta {current + 1} de {questions.length}</span>
           <div className="flex gap-1">
             {questions.map((_: any, i: number) => (
-              <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-emerald-500" : answers[questions[i].id] ? "bg-emerald-500/50" : "bg-muted"}`} />
+              <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-sky-500" : answers[questions[i].id] ? "bg-sky-500/50" : "bg-muted"}`} />
             ))}
           </div>
         </div>
         <div className="w-full bg-muted rounded-full h-1.5 mb-6">
-          <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${((current + 1) / questions.length) * 100}%` }} />
+          <div className="bg-sky-500 h-1.5 rounded-full transition-all" style={{ width: `${((current + 1) / questions.length) * 100}%` }} />
         </div>
         <h3 className="text-base font-semibold mb-6">{q.question}</h3>
         <div className="space-y-3">
           {options.map((opt) => (
             <button
               key={opt.key} onClick={() => handleAnswer(q.id, opt.key)}
-              className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all flex items-center gap-3 ${answers[q.id] === opt.key ? "border-emerald-500 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300" : "hover:border-muted-foreground/30 hover:bg-muted/50"}`}
+              className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all flex items-center gap-3 ${answers[q.id] === opt.key ? "border-sky-500 bg-sky-500/5 text-sky-700 dark:text-sky-300" : "hover:border-muted-foreground/30 hover:bg-muted/50"}`}
             >
-              <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${answers[q.id] === opt.key ? "bg-emerald-500 text-white" : "bg-muted"}`}>
+              <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${answers[q.id] === opt.key ? "bg-sky-500 text-white" : "bg-muted"}`}>
                 {opt.key}
               </span>
               {opt.text}
@@ -839,14 +839,14 @@ function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: 
         {current < questions.length - 1 ? (
           <button
             onClick={() => setCurrent(current + 1)} disabled={!answers[q.id]}
-            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-30"
+            className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium transition-colors disabled:opacity-30"
           >
             Próxima
           </button>
         ) : (
           <button
             onClick={handleSubmit} disabled={submitting || Object.keys(answers).length < questions.length}
-            className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-30 flex items-center gap-2"
+            className="px-6 py-2 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium transition-colors disabled:opacity-30 flex items-center gap-2"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
             Finalizar Quiz
@@ -869,7 +869,7 @@ function RankingSection() {
     }).catch(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
 
   const medals = ["🥇", "🥈", "🥉"]
 
@@ -896,7 +896,7 @@ function RankingSection() {
                   <td className="px-4 py-3 text-muted-foreground">{r.categoryName}</td>
                   <td className="px-4 py-3 text-center">{r.score}/{r.totalQuestions}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${r.percentage >= 70 ? "bg-emerald-500/10 text-emerald-500" : r.percentage >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${r.percentage >= 70 ? "bg-sky-500/10 text-sky-500" : r.percentage >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
                       {r.percentage}%
                     </span>
                   </td>
@@ -959,13 +959,13 @@ export default function HomePage() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform lg:translate-x-0 lg:static lg:inset-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex flex-col h-full">
           <div className="p-4 border-b">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-xl bg-emerald-500/10">
-                <Building2 className="w-5 h-5 text-emerald-500" />
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-sky-500/10">
+                <Globe className="w-6 h-6 text-sky-500" />
               </div>
               <div>
-                <h1 className="text-sm font-bold tracking-tight">Hospedagem</h1>
-                <p className="text-[10px] text-muted-foreground">IBGE 2016</p>
+                <h1 className="text-lg font-bold tracking-tight text-sky-600">Turismo</h1>
+                <p className="text-xs text-muted-foreground font-medium">IBGE 2016</p>
               </div>
             </div>
           </div>
@@ -973,7 +973,7 @@ export default function HomePage() {
             {navItems.map((item) => (
               <button
                 key={item.id} onClick={() => { setView(item.id); setSidebarOpen(false) }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${view === item.id ? "bg-emerald-500/10 text-emerald-500" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${view === item.id ? "bg-sky-500/10 text-sky-500" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
               >
                 {item.icon} {item.label}
               </button>
@@ -981,7 +981,7 @@ export default function HomePage() {
           </nav>
           <div className="p-3 border-t">
             <div className="flex items-center gap-3 px-3 py-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
+              <div className="w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-500 font-bold text-xs">
                 {user?.name?.charAt(0) || "U"}
               </div>
               <div className="flex-1 min-w-0">
@@ -1002,26 +1002,19 @@ export default function HomePage() {
       {/* Main content */}
       <main className="flex-1 min-w-0">
         <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b px-4 lg:px-6 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1.5 rounded-lg hover:bg-muted">
               <Menu className="w-5 h-5" />
             </button>
-            <div>
-              <h2 className="text-base font-semibold">
-                {view === "dashboard" && "Dashboard"}
-                {view === "curiosities" && "Curiosidades"}
-                {view === "quiz" && "Quiz"}
-                {view === "quiz-play" && "Quiz"}
-                {view === "ranking" && "Ranking"}
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                {view === "dashboard" && "Visão geral dos dados de hospedagem"}
-                {view === "curiosities" && "Dados curiosos sobre hospedagem no Brasil"}
-                {view === "quiz" && "Teste seus conhecimentos"}
-                {view === "quiz-play" && "Responda as perguntas"}
-                {view === "ranking" && "Classificação dos participantes"}
-              </p>
-            </div>
+            <h1 className="text-xl font-bold tracking-tight text-sky-600">Turismo - IBGE 2016</h1>
+            <span className="hidden sm:inline text-muted-foreground/60">·</span>
+            <span className="hidden sm:inline text-sm text-muted-foreground">
+              {view === "dashboard" && "Dashboard"}
+              {view === "curiosities" && "Curiosidades"}
+              {view === "quiz" && "Quiz"}
+              {view === "quiz-play" && "Quiz"}
+              {view === "ranking" && "Ranking"}
+            </span>
           </div>
         </header>
         <div className="p-4 lg:p-6">

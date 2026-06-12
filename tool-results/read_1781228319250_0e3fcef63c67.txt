@@ -1,0 +1,1040 @@
+     1→"use client"
+     2→
+     3→import React, { useState, useEffect, useCallback } from "react"
+     4→import { useAuthStore } from "@/lib/auth-store"
+     5→import { api } from "@/lib/api"
+     6→import type { ViewType } from "@/lib/types"
+     7→import {
+     8→  Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+     9→  PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+    10→  AreaChart, Area, ComposedChart, Line, Treemap, ScatterChart, Scatter, ZAxis,
+    11→} from "recharts"
+    12→import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart"
+    13→import {
+    14→  LayoutDashboard, Lightbulb, HelpCircle, Trophy, LogOut, Menu, X,
+    15→  Building2, Hotel, Bed, Star, Link, MapPin, ChevronRight, CheckCircle2,
+    16→  XCircle, ArrowRight, Clock, Target, Users, Activity, TrendingUp,
+    17→  Waves, TreePine, Car, Crown, Scale, ShieldCheck, Calculator, BarChart3,
+    18→  Store, Trophy as TrophyIcon, Network, Sun, Heart, Accessibility, Globe,
+    19→  Eye, UserPlus, LogIn, Loader2,
+    20→} from "lucide-react"
+    21→
+    22→// ============ CHART COLORS ============
+    23→const CHART_COLORS = ["#10b981", "#f59e0b", "#06b6d4", "#8b5cf6", "#ec4899", "#22c55e", "#ef4444", "#3b82f6"]
+    24→
+    25→// ============ ICON MAP ============
+    26→const iconMap: Record<string, React.ReactNode> = {
+    27→  Building2: <Building2 className="w-5 h-5" />,
+    28→  Hotel: <Hotel className="w-5 h-5" />,
+    29→  Bed: <Bed className="w-5 h-5" />,
+    30→  Star: <Star className="w-5 h-5" />,
+    31→  Link: <Link className="w-5 h-5" />,
+    32→  MapPin: <MapPin className="w-5 h-5" />,
+    33→  Trophy: <TrophyIcon className="w-5 h-5" />,
+    34→  Store: <Store className="w-5 h-5" />,
+    35→  Lightbulb: <Lightbulb className="w-5 h-5" />,
+    36→  Crown: <Crown className="w-5 h-5" />,
+    37→  Car: <Car className="w-5 h-5" />,
+    38→  Calculator: <Calculator className="w-5 h-5" />,
+    39→  Accessibility: <Accessibility className="w-5 h-5" />,
+    40→  Building: <Building2 className="w-5 h-5" />,
+    41→  TreePine: <TreePine className="w-5 h-5" />,
+    42→  Waves: <Waves className="w-5 h-5" />,
+    43→  Users: <Users className="w-5 h-5" />,
+    44→  Heart: <Heart className="w-5 h-5" />,
+    45→  Scale: <Scale className="w-5 h-5" />,
+    46→  Network: <Network className="w-5 h-5" />,
+    47→  Sun: <Sun className="w-5 h-5" />,
+    48→  BarChart3: <BarChart3 className="w-5 h-5" />,
+    49→  ShieldCheck: <ShieldCheck className="w-5 h-5" />,
+    50→  Globe: <Globe className="w-5 h-5" />,
+    51→}
+    52→
+    53→// ============ LOGIN SCREEN ============
+    54→function LoginScreen() {
+    55→  const [isLogin, setIsLogin] = useState(true)
+    56→  const [email, setEmail] = useState("")
+    57→  const [name, setName] = useState("")
+    58→  const [password, setPassword] = useState("")
+    59→  const [error, setError] = useState("")
+    60→  const [loading, setLoading] = useState(false)
+    61→  const login = useAuthStore((s) => s.login)
+    62→
+    63→  const handleSubmit = async (e: React.FormEvent) => {
+    64→    e.preventDefault()
+    65→    setError("")
+    66→    setLoading(true)
+    67→    try {
+    68→      if (isLogin) {
+    69→        const res = await api.auth.login(email, password)
+    70→        login(res.user)
+    71→      } else {
+    72→        const res = await api.auth.register(email, name, password)
+    73→        login(res.user)
+    74→      }
+    75→    } catch (err: any) {
+    76→      setError(err.message || "Erro ao processar")
+    77→    } finally {
+    78→      setLoading(false)
+    79→    }
+    80→  }
+    81→
+    82→  return (
+    83→    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-neutral-900 p-4">
+    84→      <div className="w-full max-w-md">
+    85→        <div className="text-center mb-8">
+    86→          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 mb-4">
+    87→            <Building2 className="w-8 h-8 text-emerald-500" />
+    88→          </div>
+    89→          <h1 className="text-2xl font-bold tracking-tight">Hospedagem Dashboard</h1>
+    90→          <p className="text-muted-foreground mt-1">Pesquisa de Serviços de Hospedagem - IBGE 2016</p>
+    91→        </div>
+    92→        <div className="bg-card rounded-2xl border shadow-sm p-6">
+    93→          <div className="flex gap-1 p-1 bg-muted rounded-xl mb-6">
+    94→            <button
+    95→              onClick={() => setIsLogin(true)}
+    96→              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${isLogin ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+    97→            >
+    98→              <LogIn className="w-4 h-4 inline mr-1.5" />Entrar
+    99→            </button>
+   100→            <button
+   101→              onClick={() => setIsLogin(false)}
+   102→              className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${!isLogin ? "bg-background shadow-sm" : "text-muted-foreground"}`}
+   103→            >
+   104→              <UserPlus className="w-4 h-4 inline mr-1.5" />Criar Conta
+   105→            </button>
+   106→          </div>
+   107→          <form onSubmit={handleSubmit} className="space-y-4">
+   108→            {!isLogin && (
+   109→              <div>
+   110→                <label className="text-sm font-medium mb-1.5 block">Nome</label>
+   111→                <input
+   112→                  type="text" value={name} onChange={(e) => setName(e.target.value)}
+   113→                  className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+   114→                  placeholder="Seu nome" required={!isLogin}
+   115→                />
+   116→              </div>
+   117→            )}
+   118→            <div>
+   119→              <label className="text-sm font-medium mb-1.5 block">Email</label>
+   120→              <input
+   121→                type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+   122→                className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+   123→                placeholder="seu@email.com" required
+   124→              />
+   125→            </div>
+   126→            <div>
+   127→              <label className="text-sm font-medium mb-1.5 block">Senha</label>
+   128→              <input
+   129→                type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+   130→                className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
+   131→                placeholder="••••••" required
+   132→              />
+   133→            </div>
+   134→            {error && <p className="text-sm text-red-500">{error}</p>}
+   135→            <button
+   136→              type="submit" disabled={loading}
+   137→              className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+   138→            >
+   139→              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+   140→              {isLogin ? "Entrar" : "Criar Conta"}
+   141→            </button>
+   142→          </form>
+   143→          <p className="text-xs text-muted-foreground text-center mt-4">
+   144→            Demo: maria@test.com / 123456
+   145→          </p>
+   146→        </div>
+   147→      </div>
+   148→    </div>
+   149→  )
+   150→}
+   151→
+   152→// ============ DASHBOARD CHARTS ============
+   153→function DashboardCharts({ data }: { data: any }) {
+   154→  if (!data) return <div className="flex items-center justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+   155→
+   156→  const estados = data.estabPorTipo.filter((d: any) => d.uf !== "Brasil")
+   157→  const brasil = data.estabPorTipo.find((d: any) => d.uf === "Brasil")
+   158→  const estadosUH = data.uhLeitosUF.filter((d: any) => d.uf !== "Brasil")
+   159→  const capitais = data.capitais
+   160→  const categorias = data.estabPorCategoria.filter((d: any) => d.uf !== "Brasil")
+   161→  const caracteristicas = data.estabPorCaracteristica.filter((d: any) => d.uf !== "Brasil")
+   162→  const localizacao = data.estabPorLocalizacao.filter((d: any) => d.uf !== "Brasil")
+   163→  const grupoUH = data.estabPorGrupoUH.filter((d: any) => d.uf !== "Brasil")
+   164→
+   165→  // Top 10 estados por estabelecimentos
+   166→  const top10Estab = [...estados].sort((a: any, b: any) => b.total - a.total).slice(0, 10)
+   167→  // Top 10 estados por leitos
+   168→  const top10Leitos = [...estadosUH].sort((a: any, b: any) => b.leitosTotal - a.leitosTotal).slice(0, 10)
+   169→  // Top 10 capitais por leitos
+   170→  const top10Capitais = [...capitais].sort((a: any, b: any) => b.leitosTotal - a.leitosTotal).slice(0, 10)
+   171→
+   172→  // Chart 1 - Tipos de estabelecimento no Brasil (pie)
+   173→  const tiposData = brasil ? [
+   174→    { name: "Hotéis", value: brasil.hoteis, fill: "#10b981" },
+   175→    { name: "Pousadas", value: brasil.pousadas, fill: "#f59e0b" },
+   176→    { name: "Motéis", value: brasil.moteis, fill: "#06b6d4" },
+   177→    { name: "Apart-hotéis", value: brasil.apartHoteis, fill: "#8b5cf6" },
+   178→    { name: "Hostels", value: brasil.hostels, fill: "#ec4899" },
+   179→    { name: "Pensões", value: brasil.pensoes, fill: "#22c55e" },
+   180→    { name: "Outros", value: brasil.outros, fill: "#ef4444" },
+   181→  ] : []
+   182→
+   183→  // Chart 2 - Categorias (pie)
+   184→  const catBrasil = data.estabPorCategoria.find((d: any) => d.uf === "Brasil")
+   185→  const catData = catBrasil ? [
+   186→    { name: "Luxo", value: catBrasil.luxo, fill: "#8b5cf6" },
+   187→    { name: "Superior", value: catBrasil.superior, fill: "#10b981" },
+   188→    { name: "Turístico", value: catBrasil.turistico, fill: "#06b6d4" },
+   189→    { name: "Econômico", value: catBrasil.economico, fill: "#f59e0b" },
+   190→    { name: "Simples", value: catBrasil.simples, fill: "#ec4899" },
+   191→  ] : []
+   192→
+   193→  // Chart 3 - Localização (pie)
+   194→  const locBrasil = data.estabPorLocalizacao.find((d: any) => d.uf === "Brasil")
+   195→  const locData = locBrasil ? [
+   196→    { name: "Urbana/Centro", value: locBrasil.urbanaCentro, fill: "#10b981" },
+   197→    { name: "Urbana/Fora", value: locBrasil.urbanaFora, fill: "#06b6d4" },
+   198→    { name: "Orla Marítima", value: locBrasil.orlaMaritima, fill: "#f59e0b" },
+   199→    { name: "Zona Rural", value: locBrasil.zonaRural, fill: "#22c55e" },
+   200→  ] : []
+   201→
+   202→  // Chart 4 - Características (pie)
+   203→  const caracBrasil = data.estabPorCaracteristica.find((d: any) => d.uf === "Brasil")
+   204→  const caracData = caracBrasil ? [
+   205→    { name: "Independentes", value: caracBrasil.independentes, fill: "#10b981" },
+   206→    { name: "Cadeia Nacional", value: caracBrasil.cadeiaNacional, fill: "#f59e0b" },
+   207→    { name: "Cadeia Internacional", value: caracBrasil.cadeiaInternacional, fill: "#8b5cf6" },
+   208→  ] : []
+   209→
+   210→  // Chart 5 - Grupos de UH Brasil (bar)
+   211→  const grupoBrasil = data.estabPorGrupoUH.find((d: any) => d.uf === "Brasil")
+   212→  const grupoData = grupoBrasil ? [
+   213→    { name: "Até 4", value: grupoBrasil.ate4 },
+   214→    { name: "5-9", value: grupoBrasil.de5a9 },
+   215→    { name: "10-19", value: grupoBrasil.de10a19 },
+   216→    { name: "20-29", value: grupoBrasil.de20a29 },
+   217→    { name: "30-49", value: grupoBrasil.de30a49 },
+   218→    { name: "50-99", value: grupoBrasil.de50a99 },
+   219→    { name: "100+", value: grupoBrasil.de100mais },
+   220→  ] : []
+   221→
+   222→  // Chart 6 - Leitos simples vs duplos por UF
+   223→  const leitosCompData = top10Leitos.map((d: any) => ({
+   224→    uf: d.uf.length > 10 ? d.uf.substring(0, 8) + "…" : d.uf,
+   225→    Simples: d.leitosSimples,
+   226→    Duplos: d.leitosDuplos,
+   227→  }))
+   228→
+   229→  // Chart 7 - Top 10 estados barras
+   230→  const top10Data = top10Estab.map((d: any) => ({
+   231→    uf: d.uf.length > 10 ? d.uf.substring(0, 8) + "…" : d.uf,
+   232→    Hotéis: d.hoteis,
+   233→    Pousadas: d.pousadas,
+   234→    Motéis: d.moteis,
+   235→  }))
+   236→
+   237→  // Chart 8 - Capitais leitos
+   238→  const capData = top10Capitais.map((d: any) => ({
+   239→    capital: d.capital.length > 10 ? d.capital.substring(0, 8) + "…" : d.capital,
+   240→    Leitos: d.leitosTotal,
+   241→  }))
+   242→
+   243→  // Chart 9 - Radar categorias por região
+   244→  const regioes: Record<string, string[]> = {
+   245→    "Norte": ["Rondônia","Acre","Amazonas","Roraima","Pará","Amapá","Tocantins"],
+   246→    "Nordeste": ["Maranhão","Piauí","Ceará","Rio Grande do Norte","Paraíba","Pernambuco","Alagoas","Sergipe","Bahia"],
+   247→    "Sudeste": ["Minas Gerais","Espírito Santo","Rio de Janeiro","São Paulo"],
+   248→    "Sul": ["Paraná","Santa Catarina","Rio Grande do Sul"],
+   249→    "Centro-Oeste": ["Mato Grosso do Sul","Mato Grosso","Goiás","Distrito Federal"],
+   250→  }
+   251→  const radarData = Object.entries(regioes).map(([reg, ufs]) => {
+   252→    const states = categorias.filter((c: any) => ufs.includes(c.uf))
+   253→    return {
+   254→      region: reg,
+   255→      Luxo: states.reduce((s: number, c: any) => s + c.luxo, 0),
+   256→      Superior: states.reduce((s: number, c: any) => s + c.superior, 0),
+   257→      Turístico: states.reduce((s: number, c: any) => s + c.turistico, 0),
+   258→      Econômico: states.reduce((s: number, c: any) => s + c.economico, 0),
+   259→    }
+   260→  })
+   261→
+   262→  // Chart 10 - Localização por região (stacked bar)
+   263→  const locRegiao = Object.entries(regioes).map(([reg, ufs]) => {
+   264→    const states = localizacao.filter((l: any) => ufs.includes(l.uf))
+   265→    return {
+   266→      region: reg,
+   267→      "Urbana/Centro": states.reduce((s: number, l: any) => s + l.urbanaCentro, 0),
+   268→      "Urbana/Fora": states.reduce((s: number, l: any) => s + l.urbanaFora, 0),
+   269→      "Orla Marítima": states.reduce((s: number, l: any) => s + l.orlaMaritima, 0),
+   270→      "Zona Rural": states.reduce((s: number, l: any) => s + l.zonaRural, 0),
+   271→    }
+   272→  })
+   273→
+   274→  // Chart 11 - UH adaptadas por região
+   275→  const uhAdaptData = Object.entries(regioes).map(([reg, ufs]) => {
+   276→    const states = data.uhLeitosUF.filter((u: any) => ufs.includes(u.uf))
+   277→    return {
+   278→      region: reg,
+   279→      "Total UH": states.reduce((s: number, u: any) => s + u.uhTotal, 0),
+   280→      "Adaptadas": states.reduce((s: number, u: any) => s + u.uhAdaptadas, 0),
+   281→    }
+   282→  })
+   283→
+   284→  // Chart 12 - Cadeias por região
+   285→  const cadeiaData = Object.entries(regioes).map(([reg, ufs]) => {
+   286→    const states = caracteristicas.filter((c: any) => ufs.includes(c.uf))
+   287→    return {
+   288→      region: reg,
+   289→      "Independentes": states.reduce((s: number, c: any) => s + c.independentes, 0),
+   290→      "Cadeia Nacional": states.reduce((s: number, c: any) => s + c.cadeiaNacional, 0),
+   291→      "Cadeia Internacional": states.reduce((s: number, c: any) => s + c.cadeiaInternacional, 0),
+   292→    }
+   293→  })
+   294→
+   295→  // Chart 13 - UH e Leitos por estado (scatter)
+   296→  const scatterData = estadosUH.map((d: any) => ({
+   297→    uf: d.uf, uh: d.uhTotal, leitos: d.leitosTotal
+   298→  }))
+   299→
+   300→  // Chart 14 - Distribuição por tamanho (area)
+   301→  const tamanhoData = Object.entries(regioes).map(([reg, ufs]) => {
+   302→    const states = grupoUH.filter((g: any) => ufs.includes(g.uf))
+   303→    return {
+   304→      region: reg,
+   305→      "Pequeno (até 19)": states.reduce((s: number, g: any) => s + g.ate4 + g.de5a9 + g.de10a19, 0),
+   306→      "Médio (20-49)": states.reduce((s: number, g: any) => s + g.de20a29 + g.de30a49, 0),
+   307→      "Grande (50+)": states.reduce((s: number, g: any) => s + g.de50a99 + g.de100mais, 0),
+   308→    }
+   309→  })
+   310→
+   311→  // Chart 15 - Hotéis por estado
+   312→  const hoteisData = [...estados].sort((a: any, b: any) => b.hoteis - a.hoteis).slice(0, 15).map((d: any) => ({
+   313→    uf: d.uf.length > 12 ? d.uf.substring(0, 10) + "…" : d.uf,
+   314→    Hotéis: d.hoteis
+   315→  }))
+   316→
+   317→  // Chart 16 - Pousadas vs Hotéis por estado
+   318→  const pousVsHotData = [...estados].sort((a: any, b: any) => b.total - a.total).slice(0, 12).map((d: any) => ({
+   319→    uf: d.uf.length > 10 ? d.uf.substring(0, 8) + "…" : d.uf,
+   320→    Hotéis: d.hoteis,
+   321→    Pousadas: d.pousadas,
+   322→  }))
+   323→
+   324→  const tiposConfig: ChartConfig = { Hotéis: { label: "Hotéis", color: "#10b981" }, Pousadas: { label: "Pousadas", color: "#f59e0b" }, Motéis: { label: "Motéis", color: "#06b6d4" } }
+   325→  const leitosConfig: ChartConfig = { Simples: { label: "Simples", color: "#10b981" }, Duplos: { label: "Duplos", color: "#8b5cf6" } }
+   326→  const radarConfig: ChartConfig = { Luxo: { label: "Luxo", color: "#8b5cf6" }, Superior: { label: "Superior", color: "#10b981" }, Turístico: { label: "Turístico", color: "#06b6d4" }, Econômico: { label: "Econômico", color: "#f59e0b" } }
+   327→  const locConfig: ChartConfig = { "Urbana/Centro": { label: "Urbana/Centro", color: "#10b981" }, "Urbana/Fora": { label: "Urbana/Fora", color: "#06b6d4" }, "Orla Marítima": { label: "Orla Marítima", color: "#f59e0b" }, "Zona Rural": { label: "Zona Rural", color: "#22c55e" } }
+   328→  const uhConfig: ChartConfig = { "Total UH": { label: "Total UH", color: "#06b6d4" }, Adaptadas: { label: "Adaptadas", color: "#10b981" } }
+   329→  const cadeiaConfig: ChartConfig = { Independentes: { label: "Independentes", color: "#10b981" }, "Cadeia Nacional": { label: "Cadeia Nacional", color: "#f59e0b" }, "Cadeia Internacional": { label: "Cadeia Internacional", color: "#8b5cf6" } }
+   330→  const tamConfig: ChartConfig = { "Pequeno (até 19)": { label: "Pequeno", color: "#10b981" }, "Médio (20-49)": { label: "Médio", color: "#f59e0b" }, "Grande (50+)": { label: "Grande", color: "#8b5cf6" } }
+   331→
+   332→  const cardClass = "bg-card rounded-xl border shadow-sm p-4"
+   333→  const chartTitleClass = "text-sm font-semibold text-foreground mb-3"
+   334→
+   335→  return (
+   336→    <div className="space-y-6">
+   337→      {/* Stats Row */}
+   338→      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+   339→        {[
+   340→          { label: "Estabelecimentos", value: brasil?.total?.toLocaleString("pt-BR"), icon: <Building2 className="w-4 h-4" />, color: "text-emerald-500" },
+   341→          { label: "Unidades Habitacionais", value: data.uhLeitosUF.find((d: any) => d.uf === "Brasil")?.uhTotal?.toLocaleString("pt-BR"), icon: <Bed className="w-4 h-4" />, color: "text-cyan-500" },
+   342→          { label: "Leitos", value: data.uhLeitosUF.find((d: any) => d.uf === "Brasil")?.leitosTotal?.toLocaleString("pt-BR"), icon: <Activity className="w-4 h-4" />, color: "text-amber-500" },
+   343→          { label: "Capitais", value: data.capitais.length.toString(), icon: <MapPin className="w-4 h-4" />, color: "text-purple-500" },
+   344→        ].map((stat, i) => (
+   345→          <div key={i} className={`${cardClass} flex items-center gap-3`}>
+   346→            <div className={`${stat.color} p-2 rounded-lg bg-opacity-10`} style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 10%, transparent)` }}>
+   347→              {stat.icon}
+   348→            </div>
+   349→            <div>
+   350→              <p className="text-xs text-muted-foreground">{stat.label}</p>
+   351→              <p className="text-lg font-bold">{stat.value}</p>
+   352→            </div>
+   353→          </div>
+   354→        ))}
+   355→      </div>
+   356→
+   357→      {/* Row 1: Pie Charts */}
+   358→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+   359→        <div className={cardClass}>
+   360→          <h3 className={chartTitleClass}>Tipos de Estabelecimento</h3>
+   361→          <ChartContainer config={{}} className="h-[220px] w-full">
+   362→            <PieChart>
+   363→              <Pie data={tiposData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={2} stroke="var(--color-background)">
+   364→                {tiposData.map((entry: any, index: number) => (
+   365→                  <Cell key={index} fill={entry.fill} />
+   366→                ))}
+   367→              </Pie>
+   368→              <Tooltip />
+   369→            </PieChart>
+   370→          </ChartContainer>
+   371→          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] text-muted-foreground justify-center">
+   372→            {tiposData.map((d: any) => <span key={d.name} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: d.fill }} />{d.name}</span>)}
+   373→          </div>
+   374→        </div>
+   375→
+   376→        <div className={cardClass}>
+   377→          <h3 className={chartTitleClass}>Categorias Hoteleiras</h3>
+   378→          <ChartContainer config={{}} className="h-[220px] w-full">
+   379→            <PieChart>
+   380→              <Pie data={catData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={2} stroke="var(--color-background)">
+   381→                {catData.map((entry: any, index: number) => (
+   382→                  <Cell key={index} fill={entry.fill} />
+   383→                ))}
+   384→              </Pie>
+   385→              <Tooltip />
+   386→            </PieChart>
+   387→          </ChartContainer>
+   388→          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] text-muted-foreground justify-center">
+   389→            {catData.map((d: any) => <span key={d.name} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: d.fill }} />{d.name}</span>)}
+   390→          </div>
+   391→        </div>
+   392→
+   393→        <div className={cardClass}>
+   394→          <h3 className={chartTitleClass}>Localização</h3>
+   395→          <ChartContainer config={{}} className="h-[220px] w-full">
+   396→            <PieChart>
+   397→              <Pie data={locData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={2} stroke="var(--color-background)">
+   398→                {locData.map((entry: any, index: number) => (
+   399→                  <Cell key={index} fill={entry.fill} />
+   400→                ))}
+   401→              </Pie>
+   402→              <Tooltip />
+   403→            </PieChart>
+   404→          </ChartContainer>
+   405→          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] text-muted-foreground justify-center">
+   406→            {locData.map((d: any) => <span key={d.name} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: d.fill }} />{d.name}</span>)}
+   407→          </div>
+   408→        </div>
+   409→
+   410→        <div className={cardClass}>
+   411→          <h3 className={chartTitleClass}>Características</h3>
+   412→          <ChartContainer config={{}} className="h-[220px] w-full">
+   413→            <PieChart>
+   414→              <Pie data={caracData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} dataKey="value" nameKey="name" strokeWidth={2} stroke="var(--color-background)">
+   415→                {caracData.map((entry: any, index: number) => (
+   416→                  <Cell key={index} fill={entry.fill} />
+   417→                ))}
+   418→              </Pie>
+   419→              <Tooltip />
+   420→            </PieChart>
+   421→          </ChartContainer>
+   422→          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[10px] text-muted-foreground justify-center">
+   423→            {caracData.map((d: any) => <span key={d.name} className="flex items-center gap-1"><span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: d.fill }} />{d.name}</span>)}
+   424→          </div>
+   425→        </div>
+   426→      </div>
+   427→
+   428→      {/* Row 2: Top estados + Grupos UH */}
+   429→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   430→        <div className={cardClass}>
+   431→          <h3 className={chartTitleClass}>Top 10 Estados por Estabelecimentos</h3>
+   432→          <ChartContainer config={tiposConfig} className="h-[280px] w-full">
+   433→            <BarChart data={top10Data} layout="vertical" margin={{ left: 20, right: 20 }}>
+   434→              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+   435→              <XAxis type="number" />
+   436→              <YAxis dataKey="uf" type="category" width={80} tick={{ fontSize: 11 }} />
+   437→              <ChartTooltip content={<ChartTooltipContent />} />
+   438→              <ChartLegend content={<ChartLegendContent />} />
+   439→              <Bar dataKey="Hotéis" stackId="a" fill="var(--color-Hotéis)" radius={[0,0,0,0]} />
+   440→              <Bar dataKey="Pousadas" stackId="a" fill="var(--color-Pousadas)" />
+   441→              <Bar dataKey="Motéis" stackId="a" fill="var(--color-Motéis)" radius={[0,4,4,0]} />
+   442→            </BarChart>
+   443→          </ChartContainer>
+   444→        </div>
+   445→
+   446→        <div className={cardClass}>
+   447→          <h3 className={chartTitleClass}>Estabelecimentos por Tamanho (UHs)</h3>
+   448→          <ChartContainer config={{}} className="h-[280px] w-full">
+   449→            <BarChart data={grupoData} margin={{ left: 10 }}>
+   450→              <CartesianGrid strokeDasharray="3 3" />
+   451→              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+   452→              <YAxis />
+   453→              <Tooltip />
+   454→              <Bar dataKey="value" fill="#06b6d4" radius={[4,4,0,0]}>
+   455→                {grupoData.map((_: any, i: number) => (
+   456→                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+   457→                ))}
+   458→              </Bar>
+   459→            </BarChart>
+   460→          </ChartContainer>
+   461→        </div>
+   462→      </div>
+   463→
+   464→      {/* Row 3: Leitos comparison + Capitais */}
+   465→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   466→        <div className={cardClass}>
+   467→          <h3 className={chartTitleClass}>Leitos Simples vs Duplos (Top 10)</h3>
+   468→          <ChartContainer config={leitosConfig} className="h-[280px] w-full">
+   469→            <BarChart data={leitosCompData} margin={{ left: 10 }}>
+   470→              <CartesianGrid strokeDasharray="3 3" />
+   471→              <XAxis dataKey="uf" tick={{ fontSize: 10 }} angle={-30} textAnchor="end" height={60} />
+   472→              <YAxis />
+   473→              <ChartTooltip content={<ChartTooltipContent />} />
+   474→              <ChartLegend content={<ChartLegendContent />} />
+   475→              <Bar dataKey="Simples" fill="var(--color-Simples)" radius={[4,4,0,0]} />
+   476→              <Bar dataKey="Duplos" fill="var(--color-Duplos)" radius={[4,4,0,0]} />
+   477→            </BarChart>
+   478→          </ChartContainer>
+   479→        </div>
+   480→
+   481→        <div className={cardClass}>
+   482→          <h3 className={chartTitleClass}>Top 10 Capitais por Leitos</h3>
+   483→          <ChartContainer config={{ Leitos: { label: "Leitos", color: "#10b981" } }} className="h-[280px] w-full">
+   484→            <BarChart data={capData} layout="vertical" margin={{ left: 20 }}>
+   485→              <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+   486→              <XAxis type="number" />
+   487→              <YAxis dataKey="capital" type="category" width={90} tick={{ fontSize: 11 }} />
+   488→              <ChartTooltip content={<ChartTooltipContent />} />
+   489→              <Bar dataKey="Leitos" fill="var(--color-Leitos)" radius={[0,4,4,0]} />
+   490→            </BarChart>
+   491→          </ChartContainer>
+   492→        </div>
+   493→      </div>
+   494→
+   495→      {/* Row 4: Radar + Localização por Região */}
+   496→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   497→        <div className={cardClass}>
+   498→          <h3 className={chartTitleClass}>Categorias por Região (Radar)</h3>
+   499→          <ChartContainer config={radarConfig} className="h-[300px] w-full">
+   500→            <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
+   501→              <PolarGrid />
+   502→              <PolarAngleAxis dataKey="region" tick={{ fontSize: 11 }} />
+   503→              <PolarRadiusAxis tick={{ fontSize: 9 }} />
+   504→              <Radar name="Luxo" dataKey="Luxo" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
+   505→              <Radar name="Superior" dataKey="Superior" stroke="#10b981" fill="#10b981" fillOpacity={0.15} />
+   506→              <Radar name="Turístico" dataKey="Turístico" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.15} />
+   507→              <Radar name="Econômico" dataKey="Econômico" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} />
+   508→              <ChartTooltip content={<ChartTooltipContent />} />
+   509→              <ChartLegend content={<ChartLegendContent />} />
+   510→            </RadarChart>
+   511→          </ChartContainer>
+   512→        </div>
+   513→
+   514→        <div className={cardClass}>
+   515→          <h3 className={chartTitleClass}>Localização por Região</h3>
+   516→          <ChartContainer config={locConfig} className="h-[300px] w-full">
+   517→            <BarChart data={locRegiao} margin={{ left: 10 }}>
+   518→              <CartesianGrid strokeDasharray="3 3" />
+   519→              <XAxis dataKey="region" tick={{ fontSize: 11 }} />
+   520→              <YAxis />
+   521→              <ChartTooltip content={<ChartTooltipContent />} />
+   522→              <ChartLegend content={<ChartLegendContent />} />
+   523→              <Bar dataKey="Urbana/Centro" stackId="a" fill="var(--color-Urbana/Centro)" />
+   524→              <Bar dataKey="Urbana/Fora" stackId="a" fill="var(--color-Urbana/Fora)" />
+   525→              <Bar dataKey="Orla Marítima" stackId="a" fill="var(--color-Orla Marítima)" />
+   526→              <Bar dataKey="Zona Rural" stackId="a" fill="var(--color-Zona Rural)" radius={[4,4,0,0]} />
+   527→            </BarChart>
+   528→          </ChartContainer>
+   529→        </div>
+   530→      </div>
+   531→
+   532→      {/* Row 5: UH Adaptadas + Cadeias por Região */}
+   533→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   534→        <div className={cardClass}>
+   535→          <h3 className={chartTitleClass}>UH Adaptadas por Região</h3>
+   536→          <ChartContainer config={uhConfig} className="h-[280px] w-full">
+   537→            <BarChart data={uhAdaptData} margin={{ left: 10 }}>
+   538→              <CartesianGrid strokeDasharray="3 3" />
+   539→              <XAxis dataKey="region" tick={{ fontSize: 11 }} />
+   540→              <YAxis />
+   541→              <ChartTooltip content={<ChartTooltipContent />} />
+   542→              <ChartLegend content={<ChartLegendContent />} />
+   543→              <Bar dataKey="Total UH" fill="var(--color-Total UH)" radius={[4,4,0,0]} />
+   544→              <Bar dataKey="Adaptadas" fill="var(--color-Adaptadas)" radius={[4,4,0,0]} />
+   545→            </BarChart>
+   546→          </ChartContainer>
+   547→        </div>
+   548→
+   549→        <div className={cardClass}>
+   550→          <h3 className={chartTitleClass}>Cadeias por Região</h3>
+   551→          <ChartContainer config={cadeiaConfig} className="h-[280px] w-full">
+   552→            <BarChart data={cadeiaData} margin={{ left: 10 }}>
+   553→              <CartesianGrid strokeDasharray="3 3" />
+   554→              <XAxis dataKey="region" tick={{ fontSize: 11 }} />
+   555→              <YAxis />
+   556→              <ChartTooltip content={<ChartTooltipContent />} />
+   557→              <ChartLegend content={<ChartLegendContent />} />
+   558→              <Bar dataKey="Independentes" fill="var(--color-Independentes)" radius={[4,4,0,0]} />
+   559→              <Bar dataKey="Cadeia Nacional" fill="var(--color-Cadeia Nacional)" radius={[4,4,0,0]} />
+   560→              <Bar dataKey="Cadeia Internacional" fill="var(--color-Cadeia Internacional)" radius={[4,4,0,0]} />
+   561→            </BarChart>
+   562→          </ChartContainer>
+   563→        </div>
+   564→      </div>
+   565→
+   566→      {/* Row 6: Scatter + Tamanho */}
+   567→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   568→        <div className={cardClass}>
+   569→          <h3 className={chartTitleClass}>UH vs Leitos por Estado</h3>
+   570→          <ChartContainer config={{}} className="h-[280px] w-full">
+   571→            <ScatterChart margin={{ left: 10 }}>
+   572→              <CartesianGrid strokeDasharray="3 3" />
+   573→              <XAxis dataKey="uh" name="UH" tick={{ fontSize: 10 }} />
+   574→              <YAxis dataKey="leitos" name="Leitos" tick={{ fontSize: 10 }} />
+   575→              <ZAxis range={[40, 200]} />
+   576→              <Tooltip cursor={{ strokeDasharray: "3 3" }} formatter={(v: number, n: string) => [v.toLocaleString("pt-BR"), n]} />
+   577→              <Scatter data={scatterData} fill="#10b981" />
+   578→            </ScatterChart>
+   579→          </ChartContainer>
+   580→        </div>
+   581→
+   582→        <div className={cardClass}>
+   583→          <h3 className={chartTitleClass}>Tamanho dos Estabelecimentos por Região</h3>
+   584→          <ChartContainer config={tamConfig} className="h-[280px] w-full">
+   585→            <BarChart data={tamanhoData} margin={{ left: 10 }}>
+   586→              <CartesianGrid strokeDasharray="3 3" />
+   587→              <XAxis dataKey="region" tick={{ fontSize: 11 }} />
+   588→              <YAxis />
+   589→              <ChartTooltip content={<ChartTooltipContent />} />
+   590→              <ChartLegend content={<ChartLegendContent />} />
+   591→              <Bar dataKey="Pequeno (até 19)" stackId="a" fill="var(--color-Pequeno (até 19))" />
+   592→              <Bar dataKey="Médio (20-49)" stackId="a" fill="var(--color-Médio (20-49))" />
+   593→              <Bar dataKey="Grande (50+)" stackId="a" fill="var(--color-Grande (50+))" radius={[4,4,0,0]} />
+   594→            </BarChart>
+   595→          </ChartContainer>
+   596→        </div>
+   597→      </div>
+   598→
+   599→      {/* Row 7: More charts */}
+   600→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   601→        <div className={cardClass}>
+   602→          <h3 className={chartTitleClass}>Hotéis por Estado</h3>
+   603→          <ChartContainer config={{ Hotéis: { label: "Hotéis", color: "#10b981" } }} className="h-[280px] w-full">
+   604→            <BarChart data={hoteisData} margin={{ left: 10 }}>
+   605→              <CartesianGrid strokeDasharray="3 3" />
+   606→              <XAxis dataKey="uf" tick={{ fontSize: 10 }} angle={-30} textAnchor="end" height={60} />
+   607→              <YAxis />
+   608→              <ChartTooltip content={<ChartTooltipContent />} />
+   609→              <Bar dataKey="Hotéis" fill="var(--color-Hotéis)" radius={[4,4,0,0]} />
+   610→            </BarChart>
+   611→          </ChartContainer>
+   612→        </div>
+   613→
+   614→        <div className={cardClass}>
+   615→          <h3 className={chartTitleClass}>Pousadas vs Hotéis (Top 12)</h3>
+   616→          <ChartContainer config={tiposConfig} className="h-[280px] w-full">
+   617→            <BarChart data={pousVsHotData} margin={{ left: 10 }}>
+   618→              <CartesianGrid strokeDasharray="3 3" />
+   619→              <XAxis dataKey="uf" tick={{ fontSize: 10 }} angle={-30} textAnchor="end" height={60} />
+   620→              <YAxis />
+   621→              <ChartTooltip content={<ChartTooltipContent />} />
+   622→              <ChartLegend content={<ChartLegendContent />} />
+   623→              <Bar dataKey="Hotéis" fill="var(--color-Hotéis)" radius={[4,4,0,0]} />
+   624→              <Bar dataKey="Pousadas" fill="var(--color-Pousadas)" radius={[4,4,0,0]} />
+   625→            </BarChart>
+   626→          </ChartContainer>
+   627→        </div>
+   628→      </div>
+   629→    </div>
+   630→  )
+   631→}
+   632→
+   633→// ============ CURIOSITIES SECTION ============
+   634→function CuriositiesSection() {
+   635→  const [curiosities, setCuriosities] = useState<any[]>([])
+   636→  const [loading, setLoading] = useState(true)
+   637→  const [filter, setFilter] = useState("Todas")
+   638→
+   639→  useEffect(() => {
+   640→    api.curiosities.list().then((res) => {
+   641→      setCuriosities(res.curiosities)
+   642→      setLoading(false)
+   643→    }).catch(() => setLoading(false))
+   644→  }, [])
+   645→
+   646→  const categories = ["Todas", ...Array.from(new Set(curiosities.map((c: any) => c.category)))]
+   647→  const filtered = filter === "Todas" ? curiosities : curiosities.filter((c: any) => c.category === filter)
+   648→
+   649→  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+   650→
+   651→  return (
+   652→    <div className="space-y-6">
+   653→      <div className="flex flex-wrap gap-2">
+   654→        {categories.map((cat) => (
+   655→          <button
+   656→            key={cat} onClick={() => setFilter(cat)}
+   657→            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${filter === cat ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+   658→          >
+   659→            {cat}
+   660→          </button>
+   661→        ))}
+   662→      </div>
+   663→      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+   664→        {filtered.map((c: any) => (
+   665→          <div key={c.id} className="bg-card rounded-xl border shadow-sm p-5 hover:shadow-md transition-shadow">
+   666→            <div className="flex items-start gap-3 mb-3">
+   667→              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500 shrink-0">
+   668→                {iconMap[c.icon] || <Lightbulb className="w-5 h-5" />}
+   669→              </div>
+   670→              <div>
+   671→                <h3 className="text-sm font-semibold leading-tight">{c.title}</h3>
+   672→                {c.source && <p className="text-[10px] text-muted-foreground mt-0.5">{c.source}</p>}
+   673→              </div>
+   674→            </div>
+   675→            <p className="text-xs text-muted-foreground leading-relaxed">{c.content}</p>
+   676→          </div>
+   677→        ))}
+   678→      </div>
+   679→    </div>
+   680→  )
+   681→}
+   682→
+   683→// ============ QUIZ SECTION ============
+   684→function QuizSection({ onPlay }: { onPlay: (categoryId: string) => void }) {
+   685→  const [categories, setCategories] = useState<any[]>([])
+   686→  const [loading, setLoading] = useState(true)
+   687→
+   688→  useEffect(() => {
+   689→    api.quiz.categories().then((res) => {
+   690→      setCategories(res.categories)
+   691→      setLoading(false)
+   692→    }).catch(() => setLoading(false))
+   693→  }, [])
+   694→
+   695→  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+   696→
+   697→  return (
+   698→    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+   699→      {categories.map((cat: any) => (
+   700→        <div key={cat.id} className="bg-card rounded-xl border shadow-sm p-5 hover:shadow-md transition-shadow cursor-pointer group" onClick={() => onPlay(cat.id)}>
+   701→          <div className="flex items-start justify-between mb-3">
+   702→            <div className="p-2.5 rounded-xl" style={{ backgroundColor: cat.color + "15", color: cat.color }}>
+   703→              {iconMap[cat.icon] || <HelpCircle className="w-6 h-6" />}
+   704→            </div>
+   705→            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
+   706→              {cat.questionCount || 0} perguntas
+   707→            </span>
+   708→          </div>
+   709→          <h3 className="font-semibold text-sm mb-1">{cat.name}</h3>
+   710→          <p className="text-xs text-muted-foreground mb-4">{cat.description}</p>
+   711→          <div className="flex items-center text-emerald-500 text-xs font-medium group-hover:gap-2 transition-all gap-1">
+   712→            Iniciar Quiz <ArrowRight className="w-3.5 h-3.5" />
+   713→          </div>
+   714→        </div>
+   715→      ))}
+   716→    </div>
+   717→  )
+   718→}
+   719→
+   720→// ============ QUIZ PLAY ============
+   721→function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: () => void; userId: string }) {
+   722→  const [questions, setQuestions] = useState<any[]>([])
+   723→  const [loading, setLoading] = useState(true)
+   724→  const [current, setCurrent] = useState(0)
+   725→  const [answers, setAnswers] = useState<Record<string, string>>({})
+   726→  const [submitting, setSubmitting] = useState(false)
+   727→  const [results, setResults] = useState<any>(null)
+   728→
+   729→  useEffect(() => {
+   730→    api.quiz.questions(categoryId).then((res) => {
+   731→      setQuestions(res.questions)
+   732→      setLoading(false)
+   733→    }).catch(() => setLoading(false))
+   734→  }, [categoryId])
+   735→
+   736→  const handleAnswer = (questionId: string, answer: string) => {
+   737→    setAnswers((prev) => ({ ...prev, [questionId]: answer }))
+   738→  }
+   739→
+   740→  const handleSubmit = async () => {
+   741→    setSubmitting(true)
+   742→    try {
+   743→      const formattedAnswers = Object.entries(answers).map(([questionId, selectedAnswer]) => ({
+   744→        questionId, selectedAnswer,
+   745→      }))
+   746→      const res = await api.quiz.submit({ userId, categoryId, answers: formattedAnswers })
+   747→      setResults(res)
+   748→    } catch (err) {
+   749→      console.error(err)
+   750→    } finally {
+   751→      setSubmitting(false)
+   752→    }
+   753→  }
+   754→
+   755→  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+   756→
+   757→  if (results) {
+   758→    const { attempt, results: answerResults } = results
+   759→    const pct = Math.round((attempt.score / attempt.totalQuestions) * 100)
+   760→    return (
+   761→      <div className="max-w-2xl mx-auto space-y-6">
+   762→        <div className="bg-card rounded-xl border shadow-sm p-8 text-center">
+   763→          <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 ${pct >= 70 ? "bg-emerald-500/10 text-emerald-500" : pct >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
+   764→            {pct >= 70 ? <Trophy className="w-10 h-10" /> : pct >= 40 ? <Target className="w-10 h-10" /> : <XCircle className="w-10 h-10" />}
+   765→          </div>
+   766→          <h2 className="text-2xl font-bold mb-2">{pct >= 70 ? "Excelente!" : pct >= 40 ? "Bom trabalho!" : "Continue tentando!"}</h2>
+   767→          <p className="text-muted-foreground mb-4">Você acertou {attempt.score} de {attempt.totalQuestions} perguntas</p>
+   768→          <div className="text-4xl font-bold text-emerald-500 mb-6">{pct}%</div>
+   769→          <button onClick={onBack} className="px-6 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium text-sm transition-colors">
+   770→            Voltar ao Quiz
+   771→          </button>
+   772→        </div>
+   773→
+   774→        <div className="space-y-3">
+   775→          {answerResults.map((r: any, i: number) => (
+   776→            <div key={i} className={`bg-card rounded-xl border shadow-sm p-4 ${r.correct ? "border-emerald-500/30" : "border-red-500/30"}`}>
+   777→              <div className="flex items-start gap-3">
+   778→                {r.correct ? <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" /> : <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />}
+   779→                <div>
+   780→                  <p className="text-sm font-medium">Pergunta {i + 1}</p>
+   781→                  {!r.correct && <p className="text-xs text-muted-foreground mt-1">Resposta correta: <span className="font-medium text-emerald-500">{r.correctAnswer}</span></p>}
+   782→                  {r.explanation && <p className="text-xs text-muted-foreground mt-1">{r.explanation}</p>}
+   783→                </div>
+   784→              </div>
+   785→            </div>
+   786→          ))}
+   787→        </div>
+   788→      </div>
+   789→    )
+   790→  }
+   791→
+   792→  const q = questions[current]
+   793→  const options = [
+   794→    { key: "A", text: q.optionA },
+   795→    { key: "B", text: q.optionB },
+   796→    { key: "C", text: q.optionC },
+   797→    { key: "D", text: q.optionD },
+   798→  ]
+   799→
+   800→  return (
+   801→    <div className="max-w-2xl mx-auto space-y-6">
+   802→      <button onClick={onBack} className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+   803→        ← Voltar
+   804→      </button>
+   805→      <div className="bg-card rounded-xl border shadow-sm p-6">
+   806→        <div className="flex items-center justify-between mb-4">
+   807→          <span className="text-xs text-muted-foreground">Pergunta {current + 1} de {questions.length}</span>
+   808→          <div className="flex gap-1">
+   809→            {questions.map((_: any, i: number) => (
+   810→              <div key={i} className={`w-2 h-2 rounded-full transition-colors ${i === current ? "bg-emerald-500" : answers[questions[i].id] ? "bg-emerald-500/50" : "bg-muted"}`} />
+   811→            ))}
+   812→          </div>
+   813→        </div>
+   814→        <div className="w-full bg-muted rounded-full h-1.5 mb-6">
+   815→          <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${((current + 1) / questions.length) * 100}%` }} />
+   816→        </div>
+   817→        <h3 className="text-base font-semibold mb-6">{q.question}</h3>
+   818→        <div className="space-y-3">
+   819→          {options.map((opt) => (
+   820→            <button
+   821→              key={opt.key} onClick={() => handleAnswer(q.id, opt.key)}
+   822→              className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all flex items-center gap-3 ${answers[q.id] === opt.key ? "border-emerald-500 bg-emerald-500/5 text-emerald-700 dark:text-emerald-300" : "hover:border-muted-foreground/30 hover:bg-muted/50"}`}
+   823→            >
+   824→              <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${answers[q.id] === opt.key ? "bg-emerald-500 text-white" : "bg-muted"}`}>
+   825→                {opt.key}
+   826→              </span>
+   827→              {opt.text}
+   828→            </button>
+   829→          ))}
+   830→        </div>
+   831→      </div>
+   832→      <div className="flex justify-between">
+   833→        <button
+   834→          onClick={() => setCurrent(Math.max(0, current - 1))} disabled={current === 0}
+   835→          className="px-4 py-2 rounded-lg border text-sm font-medium transition-colors disabled:opacity-30 hover:bg-muted"
+   836→        >
+   837→          Anterior
+   838→        </button>
+   839→        {current < questions.length - 1 ? (
+   840→          <button
+   841→            onClick={() => setCurrent(current + 1)} disabled={!answers[q.id]}
+   842→            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-30"
+   843→          >
+   844→            Próxima
+   845→          </button>
+   846→        ) : (
+   847→          <button
+   848→            onClick={handleSubmit} disabled={submitting || Object.keys(answers).length < questions.length}
+   849→            className="px-6 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium transition-colors disabled:opacity-30 flex items-center gap-2"
+   850→          >
+   851→            {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+   852→            Finalizar Quiz
+   853→          </button>
+   854→        )}
+   855→      </div>
+   856→    </div>
+   857→  )
+   858→}
+   859→
+   860→// ============ RANKING SECTION ============
+   861→function RankingSection() {
+   862→  const [ranking, setRanking] = useState<any[]>([])
+   863→  const [loading, setLoading] = useState(true)
+   864→
+   865→  useEffect(() => {
+   866→    api.ranking.global().then((res) => {
+   867→      setRanking(res.ranking)
+   868→      setLoading(false)
+   869→    }).catch(() => setLoading(false))
+   870→  }, [])
+   871→
+   872→  if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>
+   873→
+   874→  const medals = ["🥇", "🥈", "🥉"]
+   875→
+   876→  return (
+   877→    <div className="space-y-4">
+   878→      <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+   879→        <div className="overflow-x-auto">
+   880→          <table className="w-full text-sm">
+   881→            <thead>
+   882→              <tr className="border-b bg-muted/50">
+   883→                <th className="text-left px-4 py-3 font-medium">#</th>
+   884→                <th className="text-left px-4 py-3 font-medium">Usuário</th>
+   885→                <th className="text-left px-4 py-3 font-medium">Categoria</th>
+   886→                <th className="text-center px-4 py-3 font-medium">Acertos</th>
+   887→                <th className="text-center px-4 py-3 font-medium">Percentual</th>
+   888→                <th className="text-right px-4 py-3 font-medium">Data</th>
+   889→              </tr>
+   890→            </thead>
+   891→            <tbody>
+   892→              {ranking.map((r: any, i: number) => (
+   893→                <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+   894→                  <td className="px-4 py-3">{i < 3 ? medals[i] : i + 1}</td>
+   895→                  <td className="px-4 py-3 font-medium">{r.userName}</td>
+   896→                  <td className="px-4 py-3 text-muted-foreground">{r.categoryName}</td>
+   897→                  <td className="px-4 py-3 text-center">{r.score}/{r.totalQuestions}</td>
+   898→                  <td className="px-4 py-3 text-center">
+   899→                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${r.percentage >= 70 ? "bg-emerald-500/10 text-emerald-500" : r.percentage >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
+   900→                      {r.percentage}%
+   901→                    </span>
+   902→                  </td>
+   903→                  <td className="px-4 py-3 text-right text-muted-foreground text-xs">
+   904→                    {new Date(r.completedAt).toLocaleDateString("pt-BR")}
+   905→                  </td>
+   906→                </tr>
+   907→              ))}
+   908→              {ranking.length === 0 && (
+   909→                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhum resultado ainda. Seja o primeiro a completar um quiz!</td></tr>
+   910→              )}
+   911→            </tbody>
+   912→          </table>
+   913→        </div>
+   914→      </div>
+   915→    </div>
+   916→  )
+   917→}
+   918→
+   919→// ============ MAIN APP ============
+   920→export default function HomePage() {
+   921→  const { user, isAuthenticated, logout } = useAuthStore()
+   922→  const [view, setView] = useState<ViewType>("dashboard")
+   923→  const [quizCategoryId, setQuizCategoryId] = useState<string | null>(null)
+   924→  const [dashboardData, setDashboardData] = useState<any>(null)
+   925→  const [sidebarOpen, setSidebarOpen] = useState(false)
+   926→  const [dataLoading, setDataLoading] = useState(true)
+   927→
+   928→  useEffect(() => {
+   929→    if (isAuthenticated) {
+   930→      api.dashboard.data().then((res) => {
+   931→        setDashboardData(res)
+   932→        setDataLoading(false)
+   933→      }).catch(() => setDataLoading(false))
+   934→    }
+   935→  }, [isAuthenticated])
+   936→
+   937→  const handlePlayQuiz = useCallback((categoryId: string) => {
+   938→    setQuizCategoryId(categoryId)
+   939→    setView("quiz-play")
+   940→  }, [])
+   941→
+   942→  const handleBackFromQuiz = useCallback(() => {
+   943→    setQuizCategoryId(null)
+   944→    setView("quiz")
+   945→  }, [])
+   946→
+   947→  if (!isAuthenticated) return <LoginScreen />
+   948→
+   949→  const navItems = [
+   950→    { id: "dashboard" as ViewType, label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
+   951→    { id: "curiosities" as ViewType, label: "Curiosidades", icon: <Lightbulb className="w-4 h-4" /> },
+   952→    { id: "quiz" as ViewType, label: "Quiz", icon: <HelpCircle className="w-4 h-4" /> },
+   953→    { id: "ranking" as ViewType, label: "Ranking", icon: <Trophy className="w-4 h-4" /> },
+   954→  ]
+   955→
+   956→  return (
+   957→    <div className="min-h-screen flex bg-background">
+   958→      {/* Sidebar */}
+   959→      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform lg:translate-x-0 lg:static lg:inset-auto ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+   960→        <div className="flex flex-col h-full">
+   961→          <div className="p-4 border-b">
+   962→            <div className="flex items-center gap-2.5">
+   963→              <div className="p-2 rounded-xl bg-emerald-500/10">
+   964→                <Building2 className="w-5 h-5 text-emerald-500" />
+   965→              </div>
+   966→              <div>
+   967→                <h1 className="text-sm font-bold tracking-tight">Hospedagem</h1>
+   968→                <p className="text-[10px] text-muted-foreground">IBGE 2016</p>
+   969→              </div>
+   970→            </div>
+   971→          </div>
+   972→          <nav className="flex-1 p-3 space-y-1">
+   973→            {navItems.map((item) => (
+   974→              <button
+   975→                key={item.id} onClick={() => { setView(item.id); setSidebarOpen(false) }}
+   976→                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${view === item.id ? "bg-emerald-500/10 text-emerald-500" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+   977→              >
+   978→                {item.icon} {item.label}
+   979→              </button>
+   980→            ))}
+   981→          </nav>
+   982→          <div className="p-3 border-t">
+   983→            <div className="flex items-center gap-3 px-3 py-2 mb-2">
+   984→              <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
+   985→                {user?.name?.charAt(0) || "U"}
+   986→              </div>
+   987→              <div className="flex-1 min-w-0">
+   988→                <p className="text-sm font-medium truncate">{user?.name}</p>
+   989→                <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
+   990→              </div>
+   991→            </div>
+   992→            <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:bg-red-500/5 hover:text-red-500 transition-all">
+   993→              <LogOut className="w-4 h-4" /> Sair
+   994→            </button>
+   995→          </div>
+   996→        </div>
+   997→      </aside>
+   998→
+   999→      {/* Overlay */}
+  1000→      {sidebarOpen && <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
+  1001→
+  1002→      {/* Main content */}
+  1003→      <main className="flex-1 min-w-0">
+  1004→        <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b px-4 lg:px-6 py-3">
+  1005→          <div className="flex items-center gap-3">
+  1006→            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1.5 rounded-lg hover:bg-muted">
+  1007→              <Menu className="w-5 h-5" />
+  1008→            </button>
+  1009→            <div>
+  1010→              <h2 className="text-base font-semibold">
+  1011→                {view === "dashboard" && "Dashboard"}
+  1012→                {view === "curiosities" && "Curiosidades"}
+  1013→                {view === "quiz" && "Quiz"}
+  1014→                {view === "quiz-play" && "Quiz"}
+  1015→                {view === "ranking" && "Ranking"}
+  1016→              </h2>
+  1017→              <p className="text-xs text-muted-foreground">
+  1018→                {view === "dashboard" && "Visão geral dos dados de hospedagem"}
+  1019→                {view === "curiosities" && "Dados curiosos sobre hospedagem no Brasil"}
+  1020→                {view === "quiz" && "Teste seus conhecimentos"}
+  1021→                {view === "quiz-play" && "Responda as perguntas"}
+  1022→                {view === "ranking" && "Classificação dos participantes"}
+  1023→              </p>
+  1024→            </div>
+  1025→          </div>
+  1026→        </header>
+  1027→        <div className="p-4 lg:p-6">
+  1028→          {view === "dashboard" && <DashboardCharts data={dashboardData} />}
+  1029→          {view === "curiosities" && <CuriositiesSection />}
+  1030→          {view === "quiz" && <QuizSection onPlay={handlePlayQuiz} />}
+  1031→          {view === "quiz-play" && quizCategoryId && (
+  1032→            <QuizPlay categoryId={quizCategoryId} onBack={handleBackFromQuiz} userId={user?.id || ""} />
+  1033→          )}
+  1034→          {view === "ranking" && <RankingSection />}
+  1035→        </div>
+  1036→      </main>
+  1037→    </div>
+  1038→  )
+  1039→}
+  1040→
