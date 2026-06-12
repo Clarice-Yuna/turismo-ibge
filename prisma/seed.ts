@@ -31,7 +31,8 @@ async function main() {
   await prisma.user.deleteMany()
 
   // ====== USERS ======
-  const pw = hashPassword('123456')
+  const seedPassword = process.env.SEED_PASSWORD || 'changeme123'
+  const pw = hashPassword(seedPassword)
   const admin = await prisma.user.create({ data: { email: 'admin@test.com', name: 'Admin', password: pw, role: 'admin' } })
   const maria = await prisma.user.create({ data: { email: 'maria@test.com', name: 'Maria Silva', password: pw } })
   const joao = await prisma.user.create({ data: { email: 'joao@test.com', name: 'João Santos', password: pw } })

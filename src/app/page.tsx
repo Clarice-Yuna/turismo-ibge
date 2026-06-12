@@ -140,9 +140,7 @@ function LoginScreen() {
               {isLogin ? "Entrar" : "Criar Conta"}
             </button>
           </form>
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Demo: maria@test.com / 123456
-          </p>
+
         </div>
       </div>
     </div>
