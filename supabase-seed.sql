@@ -461,17 +461,12 @@ INSERT INTO "Curiosity" ("id", "title", "content", "category", "icon", "source",
 ('cur19', 'Natal: Capital Adaptada', 'Natal (RN) possuía 366 unidades habitacionais adaptadas — a maior proporção entre as capitais nordestinas, mostrando compromisso com acessibilidade.', 'Capitais', 'ShieldCheck', 'IBGE PSH 2016', 19),
 ('cur20', 'Turístico: A Categoria Média', '6.284 estabelecimentos eram classificados como turístico/médio conforto — a categoria mais comum, representando 37% do total com 5+ funcionários.', 'Categorias', 'Star', 'IBGE PSH 2016', 20);
 
--- Tentativas de quiz de exemplo
-INSERT INTO "QuizAttempt" ("id", "userId", "categoryId", "score", "totalQuestions", "timeTaken", "answers", "completedAt") VALUES
-('att1', 'user_maria', 'cat1', 4, 5, 120, '[{"q":"q1","a":"B"},{"q":"q2","a":"B"},{"q":"q3","a":"A"},{"q":"q4","a":"B"},{"q":"q5","a":"C"}]', NOW()),
-('att2', 'user_joao', 'cat1', 3, 5, 180, '[{"q":"q1","a":"A"},{"q":"q2","a":"B"},{"q":"q3","a":"B"},{"q":"q4","a":"C"},{"q":"q5","a":"C"}]', NOW()),
-('att3', 'user_ana', 'cat2', 5, 5, 90, '[{"q":"q6","a":"B"},{"q":"q7","a":"A"},{"q":"q8","a":"A"},{"q":"q9","a":"A"},{"q":"q10","a":"B"}]', NOW()),
-('att4', 'user_carlos', 'cat3', 3, 5, 150, '[{"q":"q11","a":"B"},{"q":"q12","a":"A"},{"q":"q13","a":"C"},{"q":"q14","a":"B"},{"q":"q15","a":"C"}]', NOW()),
-('att5', 'user_maria', 'cat4', 4, 5, 100, '[{"q":"q16","a":"C"},{"q":"q17","a":"A"},{"q":"q18","a":"B"},{"q":"q19","a":"B"},{"q":"q20","a":"C"}]', NOW()),
-('att6', 'user_joao', 'cat5', 2, 5, 200, '[{"q":"q21","a":"B"},{"q":"q22","a":"A"},{"q":"q23","a":"A"},{"q":"q24","a":"A"},{"q":"q25","a":"B"}]', NOW()),
-('att7', 'user_ana', 'cat6', 5, 5, 80, '[{"q":"q26","a":"A"},{"q":"q27","a":"B"},{"q":"q28","a":"B"},{"q":"q29","a":"C"},{"q":"q30","a":"C"}]', NOW()),
-('att8', 'user_carlos', 'cat1', 4, 5, 110, '[{"q":"q1","a":"B"},{"q":"q2","a":"B"},{"q":"q3","a":"B"},{"q":"q4","a":"B"},{"q":"q5","a":"C"}]', NOW());
+-- ⚠️ QuizAttempt: NÃO inserir dados falsos!
+-- O ranking deve mostrar APENAS usuários reais que completaram o quiz.
+-- As tentativas serão criadas automaticamente quando usuários reais fizerem o quiz.
 
 -- ============================================
 -- PRONTO! Todas as tabelas e dados foram criados.
+-- O ranking será preenchido automaticamente quando
+-- usuários reais completarem os quizzes.
 -- ============================================

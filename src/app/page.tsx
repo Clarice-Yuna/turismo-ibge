@@ -904,57 +904,82 @@ function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: 
 function RankingSection() {
   const [ranking, setRanking] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  useEffect(() => {
+  const loadRanking = useCallback(() => {
+    setLoading(true)
+    setError("")
     api.ranking.global().then((res) => {
       setRanking(res.ranking)
       setLoading(false)
-    }).catch(() => setLoading(false))
+    }).catch((err) => {
+      setError(err.message || "Erro ao carregar ranking")
+      setLoading(false)
+    })
   }, [])
 
+  useEffect(() => { loadRanking() }, [loadRanking])
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="p-4 rounded-full bg-red-50 text-red-500"><XCircle className="w-8 h-8" /></div>
+      <p className="text-sm text-muted-foreground">{error}</p>
+      <button onClick={loadRanking} className="px-4 py-2 rounded-lg bg-sky-500 text-white text-sm hover:bg-sky-600 transition-colors">Tentar novamente</button>
+    </div>
+  )
 
   const medals = ["🥇", "🥈", "🥉"]
 
   return (
     <div className="space-y-4">
-      <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left px-4 py-3 font-medium">#</th>
-                <th className="text-left px-4 py-3 font-medium">Usuário</th>
-                <th className="text-left px-4 py-3 font-medium">Categoria</th>
-                <th className="text-center px-4 py-3 font-medium">Acertos</th>
-                <th className="text-center px-4 py-3 font-medium">Percentual</th>
-                <th className="text-right px-4 py-3 font-medium">Data</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ranking.map((r: any, i: number) => (
-                <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3">{i < 3 ? medals[i] : i + 1}</td>
-                  <td className="px-4 py-3 font-medium">{r.userName}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{r.categoryName}</td>
-                  <td className="px-4 py-3 text-center">{r.score}/{r.totalQuestions}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${r.percentage >= 70 ? "bg-sky-500/10 text-sky-500" : r.percentage >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
-                      {r.percentage}%
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right text-muted-foreground text-xs">
-                    {new Date(r.completedAt).toLocaleDateString("pt-BR")}
-                  </td>
-                </tr>
-              ))}
-              {ranking.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">Nenhum resultado ainda. Seja o primeiro a completar um quiz!</td></tr>
-              )}
-            </tbody>
-          </table>
+      {ranking.length === 0 ? (
+        <div className="bg-card rounded-xl border shadow-sm p-12 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-sky-500/10 mb-4">
+            <Trophy className="w-8 h-8 text-sky-500" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">Nenhum resultado ainda</h3>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            O ranking mostra apenas usuários reais que completaram o quiz.
+            Faça um quiz para ser o primeiro a aparecer aqui!
+          </p>
         </div>
-      </div>
+      ) : (
+        <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left px-4 py-3 font-medium">#</th>
+                  <th className="text-left px-4 py-3 font-medium">Usuário</th>
+                  <th className="text-left px-4 py-3 font-medium">Categoria</th>
+                  <th className="text-center px-4 py-3 font-medium">Acertos</th>
+                  <th className="text-center px-4 py-3 font-medium">Percentual</th>
+                  <th className="text-right px-4 py-3 font-medium">Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ranking.map((r: any, i: number) => (
+                  <tr key={r.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3">{i < 3 ? medals[i] : i + 1}</td>
+                    <td className="px-4 py-3 font-medium">{r.userName}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{r.categoryName}</td>
+                    <td className="px-4 py-3 text-center">{r.score}/{r.totalQuestions}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${r.percentage >= 70 ? "bg-sky-500/10 text-sky-500" : r.percentage >= 40 ? "bg-amber-500/10 text-amber-500" : "bg-red-500/10 text-red-500"}`}>
+                        {r.percentage}%
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-muted-foreground text-xs">
+                      {new Date(r.completedAt).toLocaleDateString("pt-BR")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

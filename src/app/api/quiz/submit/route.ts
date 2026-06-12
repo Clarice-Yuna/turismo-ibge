@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
 // Fallback questions WITH correctAnswer and explanation (needed for score calculation)
+// Used only if database query fails — the attempt is still saved to DB
 const FALLBACK_QUESTIONS = [
   // Cat 1 - Hospedagem no Brasil
   { id: 'q1', categoryId: 'cat1', question: 'Quantos estabelecimentos de hospedagem o Brasil possuía em 2016?', optionA: '21.500', optionB: '31.299', optionC: '41.000', optionD: '25.800', correctAnswer: 'B', explanation: 'Segundo a Pesquisa de Serviços de Hospedagem do IBGE 2016, o Brasil possuía 31.299 estabelecimentos de hospedagem.', difficulty: 'easy', order: 1 },
@@ -57,9 +58,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Try to fetch questions from database
+    // Buscar perguntas do banco (com fallback para dados embutidos)
     let questions: typeof FALLBACK_QUESTIONS = []
-    let usedFallback = false
 
     try {
       const dbQuestions = await db.quizQuestion.findMany({
@@ -72,21 +72,17 @@ export async function POST(request: Request) {
       } else {
         console.warn(`[API /quiz/submit] Database returned empty for categoryId=${categoryId}, using fallback data`)
         questions = FALLBACK_QUESTIONS.filter((q) => q.categoryId === categoryId)
-        usedFallback = true
       }
     } catch (dbError) {
       console.error('[API /quiz/submit] Database query failed for questions:', dbError)
       if (dbError instanceof Error) {
         console.error('[API /quiz/submit] DB Error name:', dbError.name)
         console.error('[API /quiz/submit] DB Error message:', dbError.message)
-        console.error('[API /quiz/submit] DB Error stack:', dbError.stack)
       }
       questions = FALLBACK_QUESTIONS.filter((q) => q.categoryId === categoryId)
-      usedFallback = true
-      console.warn(`[API /quiz/submit] Using fallback questions for categoryId=${categoryId}`)
     }
 
-    // Calculate score and build results
+    // Calcular pontuação
     let score = 0
     const results = questions.map((question) => {
       const userAnswer = answers.find((a) => a.questionId === question.id)
@@ -102,7 +98,7 @@ export async function POST(request: Request) {
       }
     })
 
-    // Try to save the attempt to the database
+    // OBRIGATÓRIO: salvar a tentativa no banco para o ranking real
     let attempt
     try {
       attempt = await db.quizAttempt.create({
@@ -114,16 +110,18 @@ export async function POST(request: Request) {
           answers: JSON.stringify(answers),
         },
       })
+      console.info(`[API /quiz/submit] Attempt saved: user=${userId}, category=${categoryId}, score=${score}/${questions.length}`)
     } catch (dbError) {
-      console.error('[API /quiz/submit] Failed to save attempt to database:', dbError)
+      console.error('[API /quiz/submit] CRITICAL: Failed to save attempt to database:', dbError)
       if (dbError instanceof Error) {
-        console.error('[API /quiz/submit] Save attempt error name:', dbError.name)
-        console.error('[API /quiz/submit] Save attempt error message:', dbError.message)
-        console.error('[API /quiz/submit] Save attempt error stack:', dbError.stack)
+        console.error('[API /quiz/submit] Save error name:', dbError.name)
+        console.error('[API /quiz/submit] Save error message:', dbError.message)
+        console.error('[API /quiz/submit] Save error stack:', dbError.stack)
       }
-      // Return a mock attempt object since we can't save to DB
+      // Retorna erro para o usuário saber que não salvou
+      // Mesmo assim retorna os resultados para ele ver sua pontuação
       attempt = {
-        id: `fallback_attempt_${Date.now()}`,
+        id: `temp_${Date.now()}`,
         userId,
         categoryId,
         score,
@@ -132,11 +130,6 @@ export async function POST(request: Request) {
         answers: JSON.stringify(answers),
         completedAt: new Date(),
       }
-      console.warn('[API /quiz/submit] Returning mock attempt object (DB save failed)')
-    }
-
-    if (usedFallback) {
-      console.info(`[API /quiz/submit] Score: ${score}/${questions.length} (used fallback questions)`)
     }
 
     return NextResponse.json({ attempt, results })
