@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// IDs dos usuários de seed (dados falsos) — não devem aparecer no ranking
+const SEED_USER_IDS = ['user_admin', 'user_maria', 'user_joao', 'user_ana', 'user_carlos']
+
 export async function GET() {
   try {
+    // Buscar tentativas EXCLUINDO usuários de seed (dados falsos do SQL)
+    // Usuários reais criados pelo registro têm IDs no formato cuid() (ex: "clxxxx...")
     const attempts = await db.quizAttempt.findMany({
+      where: {
+        userId: {
+          notIn: SEED_USER_IDS,
+        },
+      },
       orderBy: [
         { score: 'desc' },
         { completedAt: 'desc' },
@@ -31,7 +41,7 @@ export async function GET() {
       completedAt: attempt.completedAt,
     }))
 
-    // Ranking mostra APENAS dados reais do banco — sem fallback
+    // Ranking mostra APENAS usuários reais que fizeram login e completaram o quiz
     return NextResponse.json({ ranking })
   } catch (error) {
     console.error('[API /quiz/ranking] Fetch ranking error:', error)

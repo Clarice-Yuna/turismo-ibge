@@ -164,15 +164,9 @@ CREATE TABLE "Curiosity" (
 -- INSERT DATA
 -- ============================================
 
--- Users (senha padrão: changeme123)
--- ⚠️ SUBSTITUA o hash abaixo pelo hash da SUA senha!
--- Gere em: https://emn178.github.io/online-tools/sha256.html
-INSERT INTO "User" ("id", "email", "name", "password", "role", "createdAt", "updatedAt") VALUES
-('user_admin', 'admin@test.com', 'Admin', '494a715f7e9b4071aca61bac42ca858a309524e5864f0920030862a4ae7589be', 'admin', NOW(), NOW()),
-('user_maria', 'maria@test.com', 'Maria Silva', '494a715f7e9b4071aca61bac42ca858a309524e5864f0920030862a4ae7589be', 'user', NOW(), NOW()),
-('user_joao', 'joao@test.com', 'João Santos', '494a715f7e9b4071aca61bac42ca858a309524e5864f0920030862a4ae7589be', 'user', NOW(), NOW()),
-('user_ana', 'ana@test.com', 'Ana Oliveira', '494a715f7e9b4071aca61bac42ca858a309524e5864f0920030862a4ae7589be', 'user', NOW(), NOW()),
-('user_carlos', 'carlos@test.com', 'Carlos Pereira', '494a715f7e9b4071aca61bac42ca858a309524e5864f0920030862a4ae7589be', 'user', NOW(), NOW());
+-- ⚠️ NÃO inserir usuários falsos! O ranking deve mostrar apenas usuários reais.
+-- Os usuários serão criados automaticamente pela página de registro do site.
+-- Para criar seu primeiro usuário, acesse o site e clique em "Criar Conta".
 
 -- Tabela 1 - Estabelecimentos por Tipo
 INSERT INTO "EstabPorTipo" ("id", "uf", "total", "hoteis", "apartHoteis", "pousadas", "moteis", "pensoes", "hostels", "outros") VALUES
