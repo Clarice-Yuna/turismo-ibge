@@ -632,19 +632,34 @@ function DashboardCharts({ data }: { data: any }) {
 function CuriositiesSection() {
   const [curiosities, setCuriosities] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [filter, setFilter] = useState("Todas")
 
-  useEffect(() => {
+  const loadCuriosities = useCallback(() => {
+    setLoading(true)
+    setError("")
     api.curiosities.list().then((res) => {
       setCuriosities(res.curiosities)
       setLoading(false)
-    }).catch(() => setLoading(false))
+    }).catch((err) => {
+      setError(err.message || "Erro ao carregar curiosidades")
+      setLoading(false)
+    })
   }, [])
+
+  useEffect(() => { loadCuriosities() }, [loadCuriosities])
 
   const categories = ["Todas", ...Array.from(new Set(curiosities.map((c: any) => c.category)))]
   const filtered = filter === "Todas" ? curiosities : curiosities.filter((c: any) => c.category === filter)
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="p-4 rounded-full bg-red-50 text-red-500"><XCircle className="w-8 h-8" /></div>
+      <p className="text-sm text-muted-foreground">{error}</p>
+      <button onClick={loadCuriosities} className="px-4 py-2 rounded-lg bg-sky-500 text-white text-sm hover:bg-sky-600 transition-colors">Tentar novamente</button>
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -682,15 +697,30 @@ function CuriositiesSection() {
 function QuizSection({ onPlay }: { onPlay: (categoryId: string) => void }) {
   const [categories, setCategories] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  useEffect(() => {
+  const loadCategories = useCallback(() => {
+    setLoading(true)
+    setError("")
     api.quiz.categories().then((res) => {
       setCategories(res.categories)
       setLoading(false)
-    }).catch(() => setLoading(false))
+    }).catch((err) => {
+      setError(err.message || "Erro ao carregar categorias")
+      setLoading(false)
+    })
   }, [])
 
+  useEffect(() => { loadCategories() }, [loadCategories])
+
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="p-4 rounded-full bg-red-50 text-red-500"><XCircle className="w-8 h-8" /></div>
+      <p className="text-sm text-muted-foreground">{error}</p>
+      <button onClick={loadCategories} className="px-4 py-2 rounded-lg bg-sky-500 text-white text-sm hover:bg-sky-600 transition-colors">Tentar novamente</button>
+    </div>
+  )
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -719,17 +749,25 @@ function QuizSection({ onPlay }: { onPlay: (categoryId: string) => void }) {
 function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: () => void; userId: string }) {
   const [questions, setQuestions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [results, setResults] = useState<any>(null)
 
-  useEffect(() => {
+  const loadQuestions = useCallback(() => {
+    setLoading(true)
+    setError("")
     api.quiz.questions(categoryId).then((res) => {
       setQuestions(res.questions)
       setLoading(false)
-    }).catch(() => setLoading(false))
+    }).catch((err) => {
+      setError(err.message || "Erro ao carregar perguntas")
+      setLoading(false)
+    })
   }, [categoryId])
+
+  useEffect(() => { loadQuestions() }, [loadQuestions])
 
   const handleAnswer = (questionId: string, answer: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }))
@@ -751,6 +789,13 @@ function QuizPlay({ categoryId, onBack, userId }: { categoryId: string; onBack: 
   }
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-6 h-6 animate-spin text-sky-500" /></div>
+  if (error) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="p-4 rounded-full bg-red-50 text-red-500"><XCircle className="w-8 h-8" /></div>
+      <p className="text-sm text-muted-foreground">{error}</p>
+      <button onClick={loadQuestions} className="px-4 py-2 rounded-lg bg-sky-500 text-white text-sm hover:bg-sky-600 transition-colors">Tentar novamente</button>
+    </div>
+  )
 
   if (results) {
     const { attempt, results: answerResults } = results
